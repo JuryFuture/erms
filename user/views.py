@@ -19,7 +19,12 @@ def login(request):
         user.update_time = now
         user.save()
         
-        retDict = {'userName':userName}
+        retDict = {}
+        status = {'code':0,'description':'success'}
+        
+        result = {'userName':userName}
+        retDict['status'] = status
+        retDict['result'] = result
         return HttpResponse(json.dumps(retDict))
 
 def Index(request):
