@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+import json
 from . import forms
 from . import models 
 # Create your views here.
@@ -10,13 +11,16 @@ def login(request):
     form = forms.UserForm(request.POST)
     if form.is_valid():
         print(form.cleaned_data)
-        user = models.Info(user_name =form.cleaned_data['userName'],\
-            passWord=form.cleaned_data['passWord'])
+        userName = form.cleaned_data['userName']
+        passWord = passWord=form.cleaned_data['passWord']
+        user = models.Info(user_name =userName, passWord=passWord)
         now = timezone.now()
         user.create_time = now
         user.update_time = now
         user.save()
-        return HttpResponse(form.cleaned_data['userName'])
+        
+        retDict = {'userName':userName}
+        return HttpResponse(json.dumps(retDict))
 
 def Index(request):
     return render(request, 'login.html')
