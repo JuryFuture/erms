@@ -14,7 +14,6 @@ def Register(request):
 
     form = forms.UserForm(request.POST)
     if form.is_valid():
-        print(form.cleaned_data)
         userName = form.cleaned_data['userName']
         passWord = passWord=form.cleaned_data['passWord']
         user = models.Info(user_name =userName, passWord=passWord)
@@ -26,6 +25,9 @@ def Register(request):
         print('id=======>>>>>>>',user.id)    
         result = {'userName':userName}
         retDict['result'] = result
+    else:
+        status['code'] = '0001'
+        status['description'] = 'common-fail'
 
     retDict['status'] = status
     return HttpResponse(json.dumps(retDict))
@@ -40,10 +42,15 @@ def Login(request):
         passWord = passWord=form.cleaned_data['passWord']
 
         user = models.info.objects.filter(userName = userName, passWord = passWord);
-        print(user)
+        #取到了保存缓存，没取到记录失败次数，返回错误信息
+        #保存缓存key:user-sid,value:id
+        print(user.id)
 
         result = {'userName':userName}
         retDict['result'] = result
+    else:
+        status['code'] = '0001'
+        status['description'] = 'common-fail'
 
     retDict['status'] = status
     return HttpResponse(json.dumps(retDict))
@@ -52,6 +59,7 @@ def Login(request):
 def Edit(request):
     retDict = {}
     status = {'code':0,'description':'success'}
+
     retDict['status'] = status
     return HttpResponse(json.dumps(retDict))
         
