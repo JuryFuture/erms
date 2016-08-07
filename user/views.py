@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+import urllib
 import datetime
 import json
 import redis
@@ -55,26 +56,34 @@ def Login(request):
         userName = form.cleaned_data['userName']
         passWord = form.cleaned_data['passWord']
 
-        user = models.Info.objects.filter(userName = userName, passWord = passWord);
-        #取到了保存缓存，没取到记录失败次数，返回错误信息
-        #保存缓存key:user-sid,value:id
-        conn = redis.Redis()
-        src = str(user.id) + str(now)
-        md5 = hashlib.md5()
-        md5.update(src.encode('utf8'))
-        sid = md5.hexdigest()
+        users = models.Info.objects.filter(user_name = userName, passWord = passWord);
+        if len(users) > 0:
+            user = users[0]
+            print(user)
+            #取到了保存缓存，没取到记录失败次数，返回错误信息
+            #保存缓存key:user-sid,value:id
+            conn = redis.Redis()
+            src = str(user.id) + str(now)
+            md5 = hashlib.md5()
+            md5.update(src.encode('utf8'))
+            sid = md5.hexdigest()
 
-        conn.set('user-'+sid,user.id)
-        print(user.id)
+            conn.set('user-'+sid,user.id)
+            print(user.id)
 
-        result = {'userName':userName}
-        retDict['result'] = result
+            result = {'userName':userName}
+            retDict['result'] = result
+        else:
+            result = {}
+            retDict['result'] = result
+            status['code'] = '0002'
+            status['description'] = '用户不存在!'
     else:
         status['code'] = '0001'
         status['description'] = 'common-fail'
 
     retDict['status'] = status
-    response = HttpResponse(json.dumps(retDict))
+    response = HttpResponse(json.dumps(retDict,ensure_ascii=False))
     if sid:
         response.set_cookie('sid',sid)
     return response
