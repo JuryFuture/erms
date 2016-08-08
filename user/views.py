@@ -10,6 +10,21 @@ import hashlib
 from . import forms
 from . import models 
 # Create your views here.
+@csrf_exemp
+def EnsureUserName(request):
+    retDict = {}
+    status = {'code':0,'description':'success'}
+    form = forms.UserForm(request.POST)
+    if form.is_valid():
+        userName = form.cleaned_data['userName']
+        users = models.Info.objects.filter(user_name = userName)
+        if len(users) > 0:
+            status['code'] = '10003'
+            status['description'] = '用户名已存在'
+    else:
+        status['code'] = '10001'
+        status['description'] = 'common-fail'
+    return HttpResponse(json.dumps(status,ensure_ascii=False))   
 @csrf_exempt
 def Register(request):
     retDict = {}
@@ -37,11 +52,11 @@ def Register(request):
         result = {'userName':userName}
         retDict['result'] = result
     else:
-        status['code'] = '0001'
+        status['code'] = '10001'
         status['description'] = 'common-fail'
 
     retDict['status'] = status
-    response = HttpResponse(json.dumps(retDict))
+    response = HttpResponse(json.dumps(retDict,ensure_acii=False))
     if sid:
         response.set_cookie('sid',sid)
     return response
@@ -76,10 +91,10 @@ def Login(request):
         else:
             result = {}
             retDict['result'] = result
-            status['code'] = '0002'
+            status['code'] = '10002'
             status['description'] = '用户不存在!'
     else:
-        status['code'] = '0001'
+        status['code'] = '10001'
         status['description'] = 'common-fail'
 
     retDict['status'] = status
@@ -96,7 +111,7 @@ def Edit(request):
     form = forms.UserForm(request.POST)
     if form.is_valid():
         conn = redis.Redis()
-        userId = conn.get('user-'+reqest.session.session_key)
+        userId = conn.get('user-'+reqest.COOKIES['sid'])
         user = models.Info.objects.get(id = userId)
         now = datetime.datetime.now()
         user.update_time = now 
