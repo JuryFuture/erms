@@ -10,7 +10,7 @@ import hashlib
 from . import forms
 from . import models 
 # Create your views here.
-@csrf_exemp
+@csrf_exempt
 def EnsureUserName(request):
     retDict = {}
     status = {'code':0,'description':'success'}
@@ -56,7 +56,7 @@ def Register(request):
         status['description'] = 'common-fail'
 
     retDict['status'] = status
-    response = HttpResponse(json.dumps(retDict,ensure_acii=False))
+    response = HttpResponse(json.dumps(retDict,ensure_ascii=False))
     if sid:
         response.set_cookie('sid',sid)
     return response
@@ -78,6 +78,7 @@ def Login(request):
             #取到了保存缓存，没取到记录失败次数，返回错误信息
             #保存缓存key:user-sid,value:id
             conn = redis.Redis()
+            now = datetime.datetime.now()
             src = str(user.id) + str(now)
             md5 = hashlib.md5()
             md5.update(src.encode('utf8'))
@@ -111,15 +112,22 @@ def Edit(request):
     form = forms.UserForm(request.POST)
     if form.is_valid():
         conn = redis.Redis()
-        userId = conn.get('user-'+reqest.COOKIES['sid'])
+        userId = conn.get('user-'+request.COOKIES['sid'])
         user = models.Info.objects.get(id = userId)
         now = datetime.datetime.now()
         user.update_time = now 
+        print(user)
+        userName = form.cleaned_data['userName']
+        passWord = form.cleaned_data['passWord']
+        user.user_name = userName
+        user.passWord = passWord
+        user.save()
     else:
-        pass
+        status['code'] = '10004'
+        status['description'] = '数据不合法'
     
     retDict['status'] = status
-    return HttpResponse(json.dumps(retDict))
+    return HttpResponse(json.dumps(retDict,ensure_ascii=False))
         
 @csrf_exempt
 def Index(request):
