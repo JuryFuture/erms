@@ -93,7 +93,7 @@ def Login(request):
             result = {}
             retDict['result'] = result
             status['code'] = '10002'
-            status['description'] = '用户不存在!'
+            status['description'] = '用户名或密码错误!'
     else:
         status['code'] = '10001'
         status['description'] = 'common-fail'
