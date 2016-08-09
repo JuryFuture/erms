@@ -64,7 +64,26 @@ def Register(request):
 def Login(request):
     retDict = {}
     status = {'code':0,'description':'success'}
+    conn = redis.Redis()
     sid = str()
+    success = True
+    fail_ip = str()
+    try:
+        fail_ip = request.META['HTTP_X_FORWARDED_FOR']
+    except KeyError:
+        fail_ip = request.META['REMOTE_ADDR']
+    if fail_ip is None:
+        fail_ip = request.META['REMOTE_ADDR']
+    fail_times = conn.get('fail-ip-'+fail_ip)
+    total_times = 0
+    if fail_times is not None:
+        total_times = int(fail_times)
+    if total_times > 4:
+        status['code'] = '10005'
+        status['description'] = '该ip地址禁止登陆,请五分钟后重试！'
+        
+        retDict['status'] = status
+        return HttpResponse(json.dumps(retDict,ensure_ascii=False)) 
 
     form = forms.UserForm(request.POST)
     if form.is_valid():
@@ -77,7 +96,6 @@ def Login(request):
             print(user)
             #取到了保存缓存，没取到记录失败次数，返回错误信息
             #保存缓存key:user-sid,value:id
-            conn = redis.Redis()
             now = datetime.datetime.now()
             src = str(user.id) + str(now)
             md5 = hashlib.md5()
@@ -94,9 +112,23 @@ def Login(request):
             retDict['result'] = result
             status['code'] = '10002'
             status['description'] = '用户名或密码错误!'
+            success = False
     else:
         status['code'] = '10001'
         status['description'] = 'common-fail'
+        success = False
+
+    if success == 0:
+        fail_ip = str()
+        try:
+            fail_ip = request.META['HTTP_X_FORWARDED_FOR']
+        except KeyError:
+            fail_ip = request.META['REMOTE_ADDR']
+        if fail_ip is None:
+            fail_ip = request.META['REMOTE_ADDR']
+        conn.incr('fail-ip-'+fail_ip)
+        conn.expire('fail-ip-'+fail_ip,60*5)
+        
 
     retDict['status'] = status
     response = HttpResponse(json.dumps(retDict,ensure_ascii=False))
