@@ -7,6 +7,7 @@ import datetime
 import json
 import redis
 import hashlib
+import logging
 from . import forms
 from . import models 
 # Create your views here.
@@ -42,10 +43,7 @@ def Register(request):
         user.save()
         #保存缓存key:user-sid,value:id
         conn = redis.Redis()
-        src = str(user.id) + str(now)
-        md5 = hashlib.md5()
-        md5.update(src.encode('utf8'))
-        sid = md5.hexdigest()        
+        sid = getSid(user.id, now)  
 
         conn.set('user-'+sid,user.id)
         print('id=======>>>>>>>',user.id)    
@@ -97,10 +95,7 @@ def Login(request):
             #取到了保存缓存，没取到记录失败次数，返回错误信息
             #保存缓存key:user-sid,value:id
             now = datetime.datetime.now()
-            src = str(user.id) + str(now)
-            md5 = hashlib.md5()
-            md5.update(src.encode('utf8'))
-            sid = md5.hexdigest()
+            sid = getSid(user.id, now)
 
             conn.set('user-'+sid,user.id)
             print(user.id)
@@ -164,3 +159,10 @@ def Edit(request):
 @csrf_exempt
 def Index(request):
     return render(request, 'login.html')
+
+def getSid(userId, now):
+    src = str(userId) + str(now)
+    md5 = hashlib.md5()
+    md5.update(src.encode('utf8'))
+    sid = md5.hexdigest()
+    return sid
