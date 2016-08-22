@@ -8,9 +8,25 @@ import json
 import redis
 import hashlib
 import logging
+import logging.config
+import yaml
+import os
 from . import forms
 from . import models 
 # Create your views here.
+
+# init the logger
+logger = logging.getLogger(__name__)
+
+PATH_PYTHON = os.path.dirname(os.path.abspath(__name__))
+PATH_YAML = os.path.join(PATH_PYTHON, 'user/yaml')
+PATH_LOG_CONFIG = os.path.join(PATH_YAML, 'logger.yaml')
+
+with open(PATH_LOG_CONFIG, 'rt') as f:
+    logging_config = yaml.load(f.read())
+logging.config.dictConfig(logging_config)
+
+#校验用户名是否存在
 @csrf_exempt
 def EnsureUserName(request):
     retDict = {}
@@ -25,9 +41,11 @@ def EnsureUserName(request):
     else:
         status['code'] = '10001'
         status['description'] = 'common-fail'
-    return HttpResponse(json.dumps(status,ensure_ascii=False))   
+    return HttpResponse(json.dumps(status,ensure_ascii=False))
+
 @csrf_exempt
 def Register(request):
+    logger.info("request: s%",request)
     retDict = {}
     status = {'code':0,'description':'success'}
     sid = str()
