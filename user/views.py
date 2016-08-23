@@ -16,15 +16,15 @@ from . import models
 # Create your views here.
 
 # init the logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ERMS.user')
 
-PATH_PYTHON = os.path.dirname(os.path.abspath(__name__))
-PATH_YAML = os.path.join(PATH_PYTHON, 'user/yaml')
-PATH_LOG_CONFIG = os.path.join(PATH_YAML, 'logger.yaml')
+#PATH_PYTHON = os.path.dirname(os.path.abspath(__name__))
+#PATH_YAML = os.path.join(PATH_PYTHON, 'user/yaml')
+#PATH_LOG_CONFIG = os.path.join(PATH_YAML, 'logger.yaml')
 
-with open(PATH_LOG_CONFIG, 'rt') as f:
-    logging_config = yaml.load(f.read())
-logging.config.dictConfig(logging_config)
+#with open(PATH_LOG_CONFIG, 'rt') as f:
+#    logging_config = yaml.load(f.read())
+#logging.config.dictConfig(logging_config)
 
 #校验用户名是否存在
 @csrf_exempt
@@ -45,7 +45,7 @@ def EnsureUserName(request):
 
 @csrf_exempt
 def Register(request):
-    logger.info("request: s%",request)
+    logger.info("request: %s",'testlogging')
     retDict = {}
     status = {'code':0,'description':'success'}
     sid = str()

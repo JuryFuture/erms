@@ -1,8 +1,0 @@
-2016-08-22 09:24:44 - py.warnings - WARNING - /usr/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1453: RuntimeWarning: DateTimeField Info.create_time received a naive datetime (2016-08-22 09:24:44.626939) while time zone support is active.
-  RuntimeWarning)
-
-2016-08-22 09:24:44 - py.warnings - WARNING - /usr/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1453: RuntimeWarning: DateTimeField Info.update_time received a naive datetime (2016-08-22 09:24:44.626939) while time zone support is active.
-  RuntimeWarning)
-
-2016-08-22 09:24:44 - django.request - WARNING - Not Found: /favicon.ico
-2016-08-22 09:24:44 - django.request - WARNING - Not Found: /favicon.ico

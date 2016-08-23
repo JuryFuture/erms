@@ -109,6 +109,39 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'fileLogger':{
+            'level':'INFO',
+            'class':'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'simple',
+            'filename':'./user/logs/app.user.log',
+            'when':'midnight',
+            'backupCount':20
+        }
+    },
+    'loggers': {
+        'ERMS.user': {
+            'handlers': ['console', 'fileLogger'],
+            'level': 'INFO'
+        }
+    }
+}
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
