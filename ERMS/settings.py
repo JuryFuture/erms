@@ -129,7 +129,7 @@ LOGGING = {
         'fileLogger':{
             'level':'INFO',
             'class':'logging.handlers.TimedRotatingFileHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',
             'filename':'./user/logs/app.user.log',
             'when':'midnight',
             'backupCount':20

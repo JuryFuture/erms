@@ -9,7 +9,6 @@ import redis
 import hashlib
 import logging
 import logging.config
-import yaml
 import os
 from . import forms
 from . import models 
@@ -18,17 +17,10 @@ from . import models
 # init the logger
 logger = logging.getLogger('ERMS.user')
 
-#PATH_PYTHON = os.path.dirname(os.path.abspath(__name__))
-#PATH_YAML = os.path.join(PATH_PYTHON, 'user/yaml')
-#PATH_LOG_CONFIG = os.path.join(PATH_YAML, 'logger.yaml')
-
-#with open(PATH_LOG_CONFIG, 'rt') as f:
-#    logging_config = yaml.load(f.read())
-#logging.config.dictConfig(logging_config)
-
 #校验用户名是否存在
 @csrf_exempt
 def EnsureUserName(request):
+    logger.info('request:%s', request)
     retDict = {}
     status = {'code':0,'description':'success'}
     form = forms.UserForm(request.POST)
@@ -45,7 +37,7 @@ def EnsureUserName(request):
 
 @csrf_exempt
 def Register(request):
-    logger.info("request: %s",'testlogging')
+    logger.info("request: %s",request)
     retDict = {}
     status = {'code':0,'description':'success'}
     sid = str()
@@ -58,6 +50,7 @@ def Register(request):
         now = datetime.datetime.now()
         user.create_time = now
         user.update_time = now
+        logger.info('注册用户：%s', user)
         user.save()
         #保存缓存key:user-sid,value:id
         conn = redis.Redis()
@@ -78,6 +71,7 @@ def Register(request):
     return response
 @csrf_exempt
 def Login(request):
+    logger.info(request)
     retDict = {}
     status = {'code':0,'description':'success'}
     conn = redis.Redis()
@@ -151,6 +145,7 @@ def Login(request):
 
 @csrf_exempt
 def Edit(request):
+    logger.info('request: %s', request)
     retDict = {}
     status = {'code':0,'description':'success'}
 
@@ -159,14 +154,15 @@ def Edit(request):
         conn = redis.Redis()
         userId = conn.get('user-'+request.COOKIES['sid'])
         user = models.Info.objects.get(id = userId)
+        logger.info('修改前：%s', user)
         now = datetime.datetime.now()
-        user.update_time = now 
-        print(user)
+        user.update_time = now
         userName = form.cleaned_data['userName']
         passWord = form.cleaned_data['passWord']
         user.user_name = userName
         user.passWord = passWord
         user.save()
+        logger.info('修改后：%s',user)
     else:
         status['code'] = '10004'
         status['description'] = '数据不合法'

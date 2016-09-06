@@ -1,4 +1,5 @@
 #coding:utf-8
+# Create your models here.
 from django.db import models
 class Info(models.Model):
     user_name = models.CharField(max_length = 50)
@@ -10,5 +11,6 @@ class Info(models.Model):
     fail_times = models.IntegerField(default = 0, null=True)
     create_time = models.DateTimeField('date published')
     update_time = models.DateTimeField('date published')
-
-# Create your models here.
+    
+    def __str__(self):
+        return "user_name:"+str(self.user_name)+",passWord:"+str(self.passWord)+",email:"+str(self.email)+",integral:"+str(self.integral)+"fail_times:"+str(self.fail_times)
