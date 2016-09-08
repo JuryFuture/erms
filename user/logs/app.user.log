@@ -1,9 +1,14 @@
-INFO request: <WSGIRequest: POST '/user/register/'>
-INFO 注册用户：Info object
-INFO 2016-09-06 03:52:39,485 views 2820 139897876604672 request: <WSGIRequest: POST '/user/register/'>
-INFO 2016-09-06 03:52:39,505 views 2820 139897876604672 注册用户：Info object
-INFO 2016-09-06 04:05:26,857 views 3300 139826851497728 request: <WSGIRequest: POST '/user/register/'>
-INFO 2016-09-06 04:22:58,346 views 3899 139764589807360 request: <WSGIRequest: POST '/user/register/'>
-INFO 2016-09-06 04:22:58,369 views 3899 139764589807360 注册用户：user_name:你好,passWord:1234,email:None,integral0fail_times0
-INFO 2016-09-06 04:23:52,553 views 3925 140492067493632 request: <WSGIRequest: POST '/user/register/'>
-INFO 2016-09-06 04:23:52,579 views 3925 140492067493632 注册用户：user_name:你好,passWord:1234,email:None,integral:0fail_times:0
+INFO 2016-09-08 12:49:31,461 views 2944 140298819544832 <WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 12:49:46,294 views 2944 140298808436480 <WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 12:49:51,474 views 2944 140298808436480 <WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 12:55:01,311 views 3188 140361365620480 request：<WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 12:55:01,357 views 3188 140361365620480 用户：(%s)登陆成功
+INFO 2016-09-08 12:55:17,611 views 3188 140361365620480 request：<WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 12:55:39,931 views 3188 140361365620480 request: <WSGIRequest: POST '/user/register/'>
+INFO 2016-09-08 12:55:39,931 views 3188 140361365620480 注册用户：user_name:lisi,passWord:1234,email:None,integral:0fail_times:0
+INFO 2016-09-08 12:55:54,624 views 3188 140361365620480 request: <WSGIRequest: POST '/user/edit/'>
+INFO 2016-09-08 12:55:54,661 views 3188 140361365620480 修改前：user_name:lisi,passWord:1234,email:None,integral:0fail_times:0
+INFO 2016-09-08 12:55:54,716 views 3188 140361365620480 修改后：user_name:lisi,passWord:123456,email:None,integral:0fail_times:0
+INFO 2016-09-08 13:05:24,708 views 3455 139663916615424 request：<WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 13:05:31,318 views 3455 139663916615424 request：<WSGIRequest: POST '/user/login/'>
+INFO 2016-09-08 13:05:31,331 views 3455 139663916615424 用户：(user_name:张三,passWord:12345678,email:None,integral:0fail_times:0)登陆成功

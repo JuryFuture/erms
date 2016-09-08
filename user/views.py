@@ -19,7 +19,7 @@ logger = logging.getLogger('ERMS.user')
 
 #校验用户名是否存在
 @csrf_exempt
-def EnsureUserName(request):
+def ensureUserName(request):
     logger.info('request:%s', request)
     retDict = {}
     status = {'code':0,'description':'success'}
@@ -33,11 +33,12 @@ def EnsureUserName(request):
     else:
         status['code'] = '10001'
         status['description'] = 'common-fail'
-    return HttpResponse(json.dumps(status,ensure_ascii=False))
+    retDict['result'] = {}
+    return HttpResponse(json.dumps(RetDict,ensure_ascii=False))
 
 @csrf_exempt
-def Register(request):
-    logger.info("request: %s",request)
+def register(request):
+    logger.info("request: %s", request)
     retDict = {}
     status = {'code':0,'description':'success'}
     sid = str()
@@ -57,12 +58,13 @@ def Register(request):
         sid = getSid(user.id, now)  
 
         conn.set('user-'+sid,user.id)
-        print('id=======>>>>>>>',user.id)    
+        conn.expire('user-'+sid,60*60*24*7)
         result = {'userName':userName}
         retDict['result'] = result
     else:
         status['code'] = '10001'
         status['description'] = 'common-fail'
+        retDict['result'] = {}
 
     retDict['status'] = status
     response = HttpResponse(json.dumps(retDict,ensure_ascii=False))
@@ -70,10 +72,11 @@ def Register(request):
         response.set_cookie('sid',sid)
     return response
 @csrf_exempt
-def Login(request):
-    logger.info(request)
+def login(request):
+    logger.info('request：%s', request)
     retDict = {}
     status = {'code':0,'description':'success'}
+    result = {}
     conn = redis.Redis()
     sid = str()
     success = True
@@ -93,6 +96,7 @@ def Login(request):
         status['description'] = '该ip地址禁止登陆,请五分钟后重试！'
         
         retDict['status'] = status
+        retDict['result'] = {}
         return HttpResponse(json.dumps(retDict,ensure_ascii=False)) 
 
     form = forms.UserForm(request.POST)
@@ -103,20 +107,18 @@ def Login(request):
         users = models.Info.objects.filter(user_name = userName, passWord = passWord);
         if len(users) > 0:
             user = users[0]
-            print(user)
+            logger.info('用户：(%s)登陆成功', user)
             #取到了保存缓存，没取到记录失败次数，返回错误信息
             #保存缓存key:user-sid,value:id
             now = datetime.datetime.now()
             sid = getSid(user.id, now)
 
             conn.set('user-'+sid,user.id)
-            print(user.id)
+            conn.expire('user-'+sid,60*60*24*7)
 
             result = {'userName':userName}
             retDict['result'] = result
         else:
-            result = {}
-            retDict['result'] = result
             status['code'] = '10002'
             status['description'] = '用户名或密码错误!'
             success = False
@@ -126,28 +128,22 @@ def Login(request):
         success = False
 
     if success == 0:
-        fail_ip = str()
-        try:
-            fail_ip = request.META['HTTP_X_FORWARDED_FOR']
-        except KeyError:
-            fail_ip = request.META['REMOTE_ADDR']
-        if fail_ip is None:
-            fail_ip = request.META['REMOTE_ADDR']
         conn.incr('fail-ip-'+fail_ip)
         conn.expire('fail-ip-'+fail_ip,60*5)
         
-
     retDict['status'] = status
+    retDict['result'] = result
     response = HttpResponse(json.dumps(retDict,ensure_ascii=False))
     if sid:
         response.set_cookie('sid',sid)
     return response
 
 @csrf_exempt
-def Edit(request):
+def edit(request):
     logger.info('request: %s', request)
     retDict = {}
     status = {'code':0,'description':'success'}
+    result = {}
 
     form = forms.UserForm(request.POST)
     if form.is_valid():
@@ -168,11 +164,37 @@ def Edit(request):
         status['description'] = '数据不合法'
     
     retDict['status'] = status
+    retDict['result'] = result
     return HttpResponse(json.dumps(retDict,ensure_ascii=False))
         
 @csrf_exempt
-def Index(request):
-    return render(request, 'login.html')
+def checkLoginStatus(request):
+    logger.info('request: %s', request)
+    retDict = {}
+    status = {'code':0,'description':'success'}
+    result = {}
+
+    form = forms.LoginCheckForm(request.POST)
+    if form.is_valid():
+        sid = form.cleaned_data['sid']
+        conn = redis.Redis()
+        userId = conn.get('user-'+sid)
+
+        if userId == None:
+            result['status'] = 0
+        else:
+            user = models.Info.objects.get(id = userId)
+            if user == None:
+                status['code'] = 10005
+                status['description'] = '用户不存在'
+            else:
+                result['status'] = 1
+    else:
+        status['code'] = '10004'
+        status['description'] = '数据不合法'
+    retDict['status'] = status
+    retDict['result'] = result
+    return HttpResponse(json.dumps(retDict,ensure_ascii=False))
 
 def getSid(userId, now):
     src = str(userId) + str(now)
